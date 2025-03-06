@@ -5,6 +5,8 @@ const cpuHand = [];
 let discardPile = [];
 let currentTurn = "player";
 let drawStack = 0;
+let timer = null;
+let startTime = null;
 
 function createDeck() {
     colors.forEach(color => {
@@ -49,6 +51,8 @@ function init() {
     renderHands();
     renderDiscard();
     updateDeckCount();
+    document.getElementById("log-content").innerHTML = "";
+    startTimer();
 }
 
 function renderHands() {
@@ -68,7 +72,13 @@ function renderHands() {
 
 function renderDiscard() {
     const topCard = discardPile[discardPile.length - 1];
-    document.getElementById("current-card").textContent = `${topCard.chosenColor || topCard.color} ${topCard.value}`;
+    const discardDiv = document.getElementById("discard-card");
+    discardDiv.innerHTML = "";
+    const cardDiv = document.createElement("div");
+    cardDiv.className = "card";
+    cardDiv.style.backgroundColor = topCard.color;
+    cardDiv.textContent = topCard.value;
+    discardDiv.appendChild(cardDiv);
 }
 
 function updateDeckCount() {
@@ -79,6 +89,7 @@ function updateDeckCount() {
             shuffle(deck);
             discardPile = [topCard];
         } else {
+            stopTimer();
             alert("デッキが尽きました。引き分けです。");
             return false;
         }
@@ -111,9 +122,10 @@ function showColorModal(index) {
         btn.className = `color-btn ${color}`;
         btn.textContent = color;
         btn.onclick = () => {
-            const card = { ...playerHand[index], color: color }; // chosenColorではなくcolorを直接変更
+            const card = { ...playerHand[index], color: color };
             discardPile.push(card);
             playerHand.splice(index, 1);
+            addLog(`playerがワイルドカードを${color}に変えた`);
             updateDrawStack(card);
             modal.remove();
             finishTurn();
@@ -137,7 +149,7 @@ function canPlay(card, topCard) {
         return cardValue >= topValue;
     }
     if (card.color === "black") return true;
-    if (card.color === (topCard.chosenColor || topCard.color) || card.value === topCard.value) return true;
+    if (card.color === topCard.color || card.value === topCard.value) return true;
     if (valueMap[topCard.value] && valueMap[card.value] && valueMap[card.value] >= valueMap[topCard.value]) return true;
     return false;
 }
@@ -146,22 +158,23 @@ function updateDrawStack(card) {
     const valueMap = { "+2": 2, "+4": 4, "+6": 6, "+10": 10 };
     if (valueMap[card.value]) {
         drawStack += valueMap[card.value];
+        addLog(`${currentTurn}が${drawStack}枚引かされた`);
     }
 }
 
 function drawCard() {
     if (currentTurn !== "player") return;
     if (drawStack > 0) {
-        // ドロースタックがある場合、強制ドロー
         for (let i = 0; i < drawStack && deck.length > 0; i++) {
             playerHand.push(deck.pop());
         }
+        addLog(`playerが${drawStack}枚引いた`);
         drawStack = 0;
         renderHands();
         finishTurn();
     } else {
-        // 通常ドロー
         playerHand.push(deck.pop());
+        addLog(`playerが1枚引いた`);
         renderHands();
         updateDeckCount();
         finishTurn();
@@ -173,10 +186,12 @@ function finishTurn() {
     renderDiscard();
     if (!updateDeckCount()) return;
     if (playerHand.length === 0 && !discardPile[discardPile.length - 1].value.includes("+")) {
+        stopTimer();
         alert("プレイヤーの勝利！");
         return;
     }
     if (cpuHand.length === 0 && !discardPile[discardPile.length - 1].value.includes("+")) {
+        stopTimer();
         alert("CPUの勝利！");
         return;
     }
@@ -185,9 +200,10 @@ function finishTurn() {
         const playable = currentTurn === "player" ?
             playerHand.some(card => canPlay(card, discardPile[discardPile.length - 1])) :
             cpuHand.some(card => canPlay(card, discardPile[discardPile.length - 1]));
-        if (!playable && currentTurn !== "player") { // CPUの場合のみ自動ドロー
+        if (!playable && currentTurn !== "player") {
             const hand = cpuHand;
             for (let i = 0; i < drawStack && deck.length > 0; i++) hand.push(deck.pop());
+            addLog(`cpuが${drawStack}枚引いた`);
             drawStack = 0;
             renderHands();
             currentTurn = "player";
@@ -203,7 +219,8 @@ function cpuTurn() {
         const card = cpuHand[playable];
         if (card.color === "black") {
             const randomColor = colors[Math.floor(Math.random() * colors.length)];
-            discardPile.push({ ...card, color: randomColor }); // CPUも色を変更
+            discardPile.push({ ...card, color: randomColor });
+            addLog(`cpuがワイルドカードを${randomColor}に変えた`);
         } else {
             discardPile.push(card);
         }
@@ -211,8 +228,29 @@ function cpuTurn() {
         updateDrawStack(card);
     } else if (drawStack === 0) {
         cpuHand.push(deck.pop());
+        addLog(`cpuが1枚引いた`);
     }
     finishTurn();
+}
+
+function addLog(message) {
+    const logContent = document.getElementById("log-content");
+    const time = document.getElementById("time").textContent;
+    logContent.innerHTML += `[${time}秒] ${message}<br>`;
+    logContent.scrollTop = logContent.scrollHeight; // 自動スクロール
+}
+
+function startTimer() {
+    if (timer) clearInterval(timer);
+    startTime = Date.now();
+    timer = setInterval(() => {
+        const elapsed = (Date.now() - startTime) / 1000;
+        document.getElementById("time").textContent = elapsed.toFixed(2);
+    }, 10); // 0.01秒単位
+}
+
+function stopTimer() {
+    if (timer) clearInterval(timer);
 }
 
 // 手札枚数選択肢
@@ -239,46 +277,5 @@ modeToggle.addEventListener("click", () => {
         modeToggle.textContent = "ライトモード";
     }
 });
-
-let timer;
-let startTime;
-let elapsedTime = 0;
-let running = false;
-
-function updateTime() {
-    const currentTime = Date.now() - startTime + elapsedTime;
-    const milliseconds = Math.floor((currentTime % 1000) / 10);
-    const seconds = Math.floor((currentTime / 1000) % 60);
-    const minutes = Math.floor((currentTime / 1000 / 60) % 60);
-    const hours = Math.floor((currentTime / 1000 / 60 / 60));
-    document.getElementById('time').textContent = 
-        String(hours).padStart(2, '0') + ':' +
-        String(minutes).padStart(2, '0') + ':' +
-        String(seconds).padStart(2, '0') + '.' +
-        String(milliseconds).padStart(2, '0');
-}
-
-function start() {
-    if (!running) {
-        startTime = Date.now();
-        timer = setInterval(updateTime, 10);
-        running = true;
-    }
-}
-
-function stop() {
-    if (running) {
-        clearInterval(timer);
-        elapsedTime += Date.now() - startTime;
-        running = false;
-    }
-}
-
-function reset() {
-    clearInterval(timer);
-    elapsedTime = 0;
-    running = false;
-    document.getElementById('time').textContent = "00:00:00.00";
-}
 
 init();
