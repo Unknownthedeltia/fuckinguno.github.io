@@ -195,7 +195,43 @@ body[data-theme="dark"] #color-modal {
 .color-btn.magenta { background-color: #c9184a; color:#fff;}
 .color-btn.pink { background-color: #ff70a6; color: #333; }
 
-#time {
-    font-size: 2em;
+/* 前回のCSSに加えて以下を追加 */
+#discard {
     margin: 20px;
+    padding: 15px;
+    background-color: #43aa8b;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px var(--shadow-color);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#discard-card {
+    margin-top: 10px;
+}
+
+#stopwatch {
+    margin: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+#log {
+    margin: 20px;
+    padding: 15px;
+    background-color: var(--hand-bg);
+    border-radius: 10px;
+    box-shadow: 0 2px 5px var(--shadow-color);
+    max-height: 200px;
+    overflow-y: auto;
+    width: 80%;
+    text-align: left;
+}
+
+#log-content {
+    font-size: 14px;
+    line-height: 1.5;
 }
