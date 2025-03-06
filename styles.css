@@ -1,0 +1,201 @@
+/*Google Fontsの読み込み
+---------------------------------------------------------------------------*/
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+
+/* カスタムプロパティでテーマ管理 */
+:root {
+    --bg-color: #f0f0f0; /* ライトモード背景 */
+    --text-color: #333;   /* ライトモードテキスト */
+    --shadow-color: rgba(0, 0, 0, 0.2);
+    --hand-bg: rgba(255, 255, 255, 0.8);
+}
+
+body[data-theme="dark"] {
+    --bg-color: #1a1a1a; /* ダークモード背景 */
+    --text-color: #e0e0e0; /* ダークモードテキスト */
+    --shadow-color: rgba(255, 255, 255, 0.1);
+    --hand-bg: rgba(40, 40, 40, 0.8);
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Jetbrains mono','Arial', sans-serif;
+    margin: 0;
+    padding: 20px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+#game {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* カードデザイン */
+.card {
+    width: 90px;
+    height: 130px;
+    margin: 8px;
+    border-radius: 10px;
+    box-shadow: 3px 3px 6px var(--shadow-color);
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 28px;
+    font-weight: medium;
+    -webkit-text-stroke: 1px; /* 縁取り */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: scale(1.1);
+    box-shadow: 5px 5px 10px var(--shadow-color);
+}
+
+/* 背景色ごとの文字色調整 */
+.card[style*="background-color: red"] { background-color: #e63946; color: #fff; }
+.card[style*="background-color: orange"] { background-color: #f4a261; color: #fff; }
+.card[style*="background-color: yellow"] { background-color: #ffd60a; color: #333; }
+.card[style*="background-color: yellowgreen"] { background-color: #90be6d; color: #333; }
+.card[style*="background-color: green"] { background-color: #43aa8b; color: #fff; }
+.card[style*="background-color: teal"] { background-color: #4d908e; color: #fff; }
+.card[style*="background-color: aqua"] { background-color: #83c5be; color: #333; }
+.card[style*="background-color: blue"] { background-color: #457b9d; color: #fff; }
+.card[style*="background-color: indigo"] { background-color: #7209b7; color: #fff; }
+.card[style*="background-color: purple"] { background-color: #9d4edd; color: #fff; }
+.card[style*="background-color: magenta"] { background-color: #c9184a; color: #fff; }
+.card[style*="background-color: pink"] { background-color: #ff70a6; color: #333; }
+.card[style*="background-color: black"] { background-color: #333; color: #fff; }
+
+/* 手札エリア */
+#player-hand, #cpu-hand {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 20px 0;
+    padding: 10px;
+    background-color: var(--hand-bg);
+    border-radius: 15px;
+    box-shadow: 0 2px 5px var(--shadow-color);
+}
+
+#player-hand { border: 2px solid #457b9d; }
+#cpu-hand { border: 2px solid #e63946; }
+
+/* デッキと捨て札 */
+#deck, #discard {
+    margin: 20px;
+    padding: 15px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px var(--shadow-color);
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+body[data-theme="dark"] #deck,
+body[data-theme="dark"] #discard {
+    background-color: #333;
+    color: #e0e0e0;
+}
+
+#deck { background-color: #f4a261; }
+#discard { background-color: #43aa8b; }
+
+/* ボタン */
+button {
+    padding: 12px 25px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    background-color: #7209b7;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px var(--shadow-color);
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+button:hover {
+    background-color: #9d4edd;
+    transform: translateY(-2px);
+}
+
+#draw-btn {
+    background-color: #ff70a6;
+}
+
+#draw-btn:hover {
+    background-color: #ff8fab;
+}
+
+#mode-toggle {
+    background-color: #555;
+}
+
+#mode-toggle:hover {
+    background-color: #777;
+}
+
+/* 色選択モーダル */
+#color-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px var(--shadow-color);
+    z-index: 1000;
+}
+
+body[data-theme="dark"] #color-modal {
+    background: #333;
+    color: #e0e0e0;
+}
+
+/* 前回のCSSに以下を追加・修正 */
+.color-btn {
+    padding: 10px;
+    margin: 5px;
+    border-radius: 5px;
+    color: white;
+    font-family: 'jetbrains mono';
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.color-btn:hover {
+    transform: scale(1.05);
+}
+
+/* 背景色ごとの設定 */
+.color-btn.red { background-color: #e63946; color:#fff;}
+.color-btn.orange { background-color: #f4a261; color:#fff;}
+.color-btn.yellow { background-color: #ffd60a; color: #333; }
+.color-btn.yellowgreen { background-color: #90be6d; color: #333; }
+.color-btn.green { background-color: #43aa8b; color:#fff;}
+.color-btn.teal { background-color: #4d908e; color:#fff;}
+.color-btn.aqua { background-color: #83c5be; color: #333; }
+.color-btn.blue { background-color: #457b9d; color:#fff;}
+.color-btn.indigo { background-color: #7209b7; color:#fff;}
+.color-btn.purple { background-color: #9d4edd; color:#fff;}
+.color-btn.magenta { background-color: #c9184a; color:#fff;}
+.color-btn.pink { background-color: #ff70a6; color: #333; }
+
+#time {
+    font-size: 2em;
+    margin: 20px;
+}

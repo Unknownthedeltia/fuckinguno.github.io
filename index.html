@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>UNOEX</title>
+    <link rel="stylesheet" href="styles.css">
+    <h1>UNO EX</h1>
+    <h2>100分かかってもクリアできない可能性のあるクソゲー</h2>
+</head>
+<body>
+    <div id="game">
+        <div>
+            <label>手札枚数: </label>
+            <select id="hand-size"></select>
+            <button onclick="init()">開始</button>
+            <button id="mode-toggle">ダークモード</button>
+        </div>
+        <div id="deck">ドローデッキ: <span id="deck-count"></span></div>
+        <div id="discard">捨て札: <span id="current-card"></span></div>
+        <div id="player-hand"></div>
+        <div id="cpu-hand"></div>
+        <button id="draw-btn">カードを引く</button>
+    </div>
+
+    <div id="stopwatch">
+        <div id="time">00:00:00.00</div>
+        <button onclick="start()">スタート</button>
+        <button onclick="stop()">ストップ</button>
+        <button onclick="reset()">リセット</button>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
